@@ -1,8 +1,9 @@
-library(shiny) # you may need to install.packages() this
+# I include the relevant libraries for my project.
+
+library(shiny) 
 library(tidyverse)
 library(janitor)
 library(ggthemes)
-library(fec16)
 require(scales)
 library(shinythemes)
 library(ggpattern)
@@ -124,76 +125,102 @@ state_list <- sort(unique(climateState$State))
 model <- stan_glm(data = climate, Total_Amount ~ Party + District_Type, 
                   refresh = 0, family = gaussian())
 
-######################################################################################
-######################################################################################
+################################################################################
+################################################################################
 
 ui <- fluidPage(navbarPage(theme = shinytheme("flatly"), "Climate Fundraising",
         tabPanel("By Party", titlePanel("Climate Fundraising by Party"), 
-             sidebarLayout(sidebarPanel(
-                 selectInput("Party", h3("Select Party"), 
+             sidebarLayout(sidebarPanel(selectInput("Party", h3("Select Party"), 
                              choices = list("Democrat" = 1, "Republican" = 2), 
-                             selected = 1)), mainPanel(plotOutput("distPlot10"))), h3("Key Insights"), 
-             h4("Based on the histogram plots generated above, we observe that Republican candidates
-                tend to attract greater fundraising amounts than Democratic candidates. However, we also 
-                observe that there are significantly more Democratic candidates that receive fundraising than
-                Republican candidates. We summarize these trends in the following boxplot."), 
-             plotOutput("distPlot11"), h4("Summarizing these results, we observe that more amounts of 
-                                          climate fundraising went to Republican campaigns than Democratic campaigns."), plotOutput("distPlot12")), 
-    tabPanel("By Office", titlePanel("Climate Fundraising by Office"), 
-             sidebarLayout(sidebarPanel(
-                 selectInput("Office", h3("Select Office"), 
-                             choices = list("President" = 1, "U.S. Senate" = 2, "U.S. House" = 3), 
-                             selected = 1)), mainPanel(plotOutput("distPlot8"))), h3("Key Insights"), 
-             h4("Based on the histogram plots generated above, we observe that Presidential
-                races tend to attract significantly greater fundraising amounts than Congressional races.
-                Moreover, even within the U.S. Congress, U.S. Senate races tend to attract more
-                funding than U.S. House races. We see that, while some Presidential and even U.S. Senate 
-                races do attract significant amounts of funding, most U.S. House campaigns consist of fairly
-                small donation amounts. We summarize these trends in the following bar graph."), 
-             plotOutput("distPlot9")),   
-    tabPanel("By State", titlePanel("Climate Fundraising by State"), 
-               sidebarLayout(sidebarPanel(h5("Note: Some states may be missing, since not all states
-                                             received climate donations."),
-                   selectInput("State", h3("Select State"), 
-                               choices = state_list, 
-                               selected = 1)), mainPanel(plotOutput("distPlot13"))), h3("Key Insights"), 
-               h4("We notice right away that many states have very few candidates receiving climate fundraising dollars. We now compare total climate fundraising amounts by state."),
-             plotOutput("distPlot14"), h4("We now plot a map of total climate fundraising across states."), 
+                             selected = 1)), 
+                           mainPanel(plotOutput("distPlot10"))), 
+             h3("Key Insights"), h4("Based on the histogram plots generated 
+             above, we observe that Republican candidates tend to attract 
+             greater fundraising amounts than Democratic candidates. However, 
+             we also observe that there are significantly more Democratic 
+             candidates that receive fundraising than Republican candidates. We 
+             summarize these trends in the following boxplot."), 
+             plotOutput("distPlot11"), 
+             h4("Summarizing these results, we observe that more amounts of 
+                climate fundraising went to Republican campaigns than 
+                Democratic campaigns."), plotOutput("distPlot12")), 
+        tabPanel("By Office", titlePanel("Climate Fundraising by Office"), 
+             sidebarLayout(sidebarPanel(selectInput("Office", 
+                                                    h3("Select Office"), 
+                             choices = list("President" = 1, "U.S. Senate" = 2, 
+                                            "U.S. House" = 3), selected = 1)), 
+                           mainPanel(plotOutput("distPlot8"))), 
+             h3("Key Insights"), h4("Based on the histogram plots generated 
+             above, we observe that Presidential races tend to attract 
+             significantly greater fundraising amounts than Congressional races.
+             Moreover, even within the U.S. Congress, U.S. Senate races tend to 
+             attract more funding than U.S. House races. We see that, while 
+             some Presidential and even U.S. Senate races do attract significant 
+             amounts of funding, most U.S. House campaigns consist of fairly 
+             small donation amounts. We summarize these trends in the following 
+             bar graph."), plotOutput("distPlot9")), 
+        tabPanel("By State", titlePanel("Climate Fundraising by State"), 
+        sidebarLayout(sidebarPanel(h5("Note: Some states may be missing, since 
+        not all states received climate donations."), 
+                                   selectInput("State", h3("Select State"), 
+                                               choices = state_list, 
+                                               selected = 1)), 
+                      mainPanel(plotOutput("distPlot13"))), h3("Key Insights"), 
+               h4("We notice right away that many states have very few 
+                  candidates receiving climate fundraising dollars. We now 
+                  compare total climate fundraising amounts by state."), 
+        plotOutput("distPlot14"), h4("We now plot a map of total climate 
+                                     fundraising across states."), 
              plotOutput("distPlot15")),
-    tabPanel("Model", titlePanel("Climate Fundraising Predictive Model"), h3("Overview of Model"),
-             h4("We seek to generate a linear regression model that is capable of predicting the amount
-                a candidate is able to receive in fundraising, based on various predictor variables, including
-                Party, Office, and State. In our particular model, we choose a stan_glm regression model with the total climate fundraising amount for a given 
-                candidate as the response variable, and Party and Office as the predictor variables, along with an intercept term."), h3("Model Output"), gt_output("distText16"),
-             h3("Interpretation of Model"), h4("We interpret the model as follows. Our intercept term indicates that, for a candidate who is a Democrat running for President,
-                                               they are predicted to receive $1,847,278 in donations. For a Republican candidate, they are predicted to receive $340,329 more in climate donations
-                                               than a Democratic candidate (running for the same position). Meanwhile, a Presidential candidate is predicted to receive $1,853,297 more
-                                               in climate donations than a comparable U.S. House candidate and $1,746,177 more in climate donations than a comparable U.S. Senate
-                                               candidate.")),
-    tabPanel("About", h2("About Me"), 
+        tabPanel("Model", titlePanel("Climate Fundraising Predictive Model"), 
+                 h3("Overview of Model"), h4("We seek to generate a linear 
+                 regression model that is capable of predicting the amount a 
+                 candidate is able to receive in fundraising, based on various 
+                 predictor variables, including Party, Office, and State. In our 
+                 particular model, we choose a stan_glm regression model with 
+                 the total climate fundraising amount for a given candidate as 
+                 the response variable, and Party and Office as the predictor 
+                 variables, along with an intercept term."), h3("Model Output"), 
+                 gt_output("distText16"), h3("Interpretation of Model"), 
+                 h4("We interpret the model as follows. Our intercept term 
+                 indicates that, for a candidate who is a Democrat running for 
+                 President, they are predicted to receive $1,847,278 in 
+                 donations. For a Republican candidate, they are predicted to 
+                 receive $340,329 more in climate donations than a Democratic 
+                 candidate (running for the same position). Meanwhile, a 
+                 Presidential candidate is predicted to receive $1,853,297 more
+                 in climate donations than a comparable U.S. House candidate and 
+                 $1,746,177 more in climate donations than a comparable U.S. 
+                 Senate candidate.")),
+        tabPanel("About", h2("About Me"), 
              h3("My name is Charles Hua, and I am a junior at Harvard College
              studying Statistics and Mathematics with a minor in Energy and 
              Environment. I'm deeply passionate about climate and politics and 
              decided to pursue a project exploring the landscape of climate
-             fundraising for federal and state political campaigns."), h2("About My Project"), 
-             h3("Climate and environmental issues are playing an increasingly important role in political campaigns, 
-                driving increased voter turnout and greater prominence of climate change in political messaging. 
-                A key consequence of this trend has been in climate political donations, 
-                where we've begun to see several climate- and environment-oriented political 
-                action committees (or PACs) making contributions to federal and state candidates. 
-                My project aims to understand the current landscape of climate political fundraising 
-                in the United States, at both the federal and state level, to understand where money 
-                is coming from and where money is going. Through this work, I've realized that there 
-                remain many inefficiencies in the way climate-oriented donations are made, with 
-                over-emphasis on Presidential and federal races, and less emphasis on Congressional 
-                and state races, presenting opportunities for revamped strategy in terms of 
-                climate donations."), h2("About My Data"), h3("I leveraged
-             publicly accessible data from the Federal Election Commission
-             and from individual state election commissions to generate a 
+             fundraising for federal and state political campaigns."), 
+             h2("About My Project"), h3("Climate and environmental issues are 
+             playing an increasingly important role in political campaigns, 
+             driving increased voter turnout and greater prominence of climate 
+             change in political messaging. A key consequence of this trend has 
+             been in climate political donations, where we've begun to see 
+             several climate- and environment-oriented political action 
+             committees (or PACs) making contributions to federal and state 
+             candidates. My project aims to understand the current landscape of 
+             climate political fundraising in the United States, at both the 
+             federal and state level, to understand where money is coming from 
+             and where money is going. Through this work, I've realized that 
+             there remain many inefficiencies in the way climate-oriented 
+             donations are made, with over-emphasis on Presidential and federal 
+             races, and less emphasis on Congressional and state races, 
+             presenting opportunities for revamped strategy in terms of climate 
+             donations."), h2("About My Data"), h3("I leveraged publicly 
+             accessible data from the Federal Election Commission and from 
+             individual state election commissions to generate a 
              one-of-its-kind, comprehensive dataset exploring donations to and
              expenditures of climate-oriented political action committees (PACs)
              and campaigns. I hope you enjoy the project!"),  
-             h4("Link to GitHub Repo: https://github.com/charles-hua/gov50finalproject.git"))
+             h4("Link to GitHub Repo: 
+                https://github.com/charles-hua/gov50finalproject.git"))
 )
 )
 
