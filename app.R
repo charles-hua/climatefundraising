@@ -1,3 +1,4 @@
+
 # I include the relevant libraries for my project.
 
 library(shiny) 
@@ -15,7 +16,8 @@ library(gtsummary)
 library(gt)
 library(broom.mixed)
 
-# I load in my data through calls to read_csv function.
+# I load in my data through calls to the read_csv function. I also make sure to 
+# properly include the column type for all of the variables.
 
 climatefederal <- read_csv("data/Climate Fundraising Federal.csv",
                            col_type = cols(ID = col_character(),
@@ -128,7 +130,16 @@ model <- stan_glm(data = climate, Total_Amount ~ Party + District_Type,
 ################################################################################
 ################################################################################
 
+# Here, I design the ui (user interface) component of my Shiny app. I have a 
+# series of tabs and, within each tab, I include visualizations, interactive 
+# features, descriptions of relevant analysis and insights, etc. I establish
+# several calls to the plots I generate later on in my project. 
+
 ui <- fluidPage(navbarPage(theme = shinytheme("flatly"), "Climate Fundraising",
+                           
+        # I create a "By Party" tab that showcases climate fundraising insights
+        # and analysis by political party for the political donations.
+         
         tabPanel("By Party", titlePanel("Climate Fundraising by Party"), 
              sidebarLayout(sidebarPanel(selectInput("Party", h3("Select Party"), 
                              choices = list("Democrat" = 1, "Republican" = 2), 
@@ -144,6 +155,10 @@ ui <- fluidPage(navbarPage(theme = shinytheme("flatly"), "Climate Fundraising",
              h4("Summarizing these results, we observe that more amounts of 
                 climate fundraising went to Republican campaigns than 
                 Democratic campaigns."), plotOutput("distPlot12")), 
+        
+        # I create a "By Office" tab that showcases climate fundraising insights
+        # and analysis by office.
+        
         tabPanel("By Office", titlePanel("Climate Fundraising by Office"), 
              sidebarLayout(sidebarPanel(selectInput("Office", 
                                                     h3("Select Office"), 
@@ -159,6 +174,11 @@ ui <- fluidPage(navbarPage(theme = shinytheme("flatly"), "Climate Fundraising",
              amounts of funding, most U.S. House campaigns consist of fairly 
              small donation amounts. We summarize these trends in the following 
              bar graph."), plotOutput("distPlot9")), 
+        
+        # I create a "By State" tab that showcases climate fundraising insights
+        # and analysis by state. In this tab, I include a map of climate 
+        # donations.
+        
         tabPanel("By State", titlePanel("Climate Fundraising by State"), 
         sidebarLayout(sidebarPanel(h5("Note: Some states may be missing, since 
         not all states received climate donations."), 
@@ -172,6 +192,11 @@ ui <- fluidPage(navbarPage(theme = shinytheme("flatly"), "Climate Fundraising",
         plotOutput("distPlot14"), h4("We now plot a map of total climate 
                                      fundraising across states."), 
              plotOutput("distPlot15")),
+        
+        # I create a Model tab that describes the linear regression model that
+        # I generated using stan_glm. I include the model output, a table of
+        # linear regression coefficients, and the interpretation of my model.
+        
         tabPanel("Model", titlePanel("Climate Fundraising Predictive Model"), 
                  h3("Overview of Model"), h4("We seek to generate a linear 
                  regression model that is capable of predicting the amount a 
@@ -191,7 +216,13 @@ ui <- fluidPage(navbarPage(theme = shinytheme("flatly"), "Climate Fundraising",
                  Presidential candidate is predicted to receive $1,853,297 more
                  in climate donations than a comparable U.S. House candidate and 
                  $1,746,177 more in climate donations than a comparable U.S. 
-                 Senate candidate.")),
+                 Senate candidate. Our table above also includes 95% confidence
+                 intervals for the parameters previously mentioned.")),
+        
+        # I create an About page that describes myself, my project, and my 
+        # data sources for this project, including a link to my GitHub
+        # repository.
+        
         tabPanel("About", h2("About Me"), 
              h3("My name is Charles Hua, and I am a junior at Harvard College
              studying Statistics and Mathematics with a minor in Energy and 
@@ -220,7 +251,7 @@ ui <- fluidPage(navbarPage(theme = shinytheme("flatly"), "Climate Fundraising",
              expenditures of climate-oriented political action committees (PACs)
              and campaigns. I hope you enjoy the project!"),  
              h4("Link to GitHub Repo: 
-                https://github.com/charles-hua/gov50finalproject.git"))
+                https://github.com/charles-hua/climatefundraising"))
 )
 )
 
@@ -229,11 +260,14 @@ server <- function(input, output, session) {
     # Here, I generate a histogram to display general climate fundraising data.
 
     output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
+        
+        # I generate bins based on input$bins from ui.R.
+        
         x    <- climate$Total_Amount
         bins <- seq(min(x), max(x), length.out = input$bins + 1)
         
-        # draw the histogram with the specified number of bins
+        # I plot the histogram with the specified number of bins. 
+        
         ggplot(mapping = aes(x)) + 
             geom_histogram(breaks = bins, fill = "dodgerblue", 
                            border = "black") + 
@@ -245,11 +279,14 @@ server <- function(input, output, session) {
     # Here, I generate a histogram to display general climate fundraising data.
     
     output$distPlot2 <- renderPlot({
-        # generate bins based on input$bins from ui.R
+        
+        # I generate bins based on input$bins from ui.R.
+        
         x    <- climate$Total_Amount
         bins <- seq(min(x), max(x), length.out = input$bins + 1)
         
-        # draw the histogram with the specified number of bins
+        # I plot the histogram with the specified number of bins. 
+        
         ggplot(mapping = aes(x)) + 
             geom_histogram(breaks = bins, fill = "dodgerblue", 
                            border = "black") + 
@@ -262,7 +299,9 @@ server <- function(input, output, session) {
     # party.
     
     output$distPlot3 <- renderPlot({
-        # generate bins based on input$bins from ui.R
+        
+        # I generate bins based on input$bins from ui.R.
+        
         x <- climate$Total_Amount 
         ggplot(mapping = aes(climate$Party, x)) + 
             geom_boxplot() + 
@@ -272,7 +311,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a histogram to display general climate fundraising data
-    # for Democrats.
+    # for Democrats. I include a log-scale transformation.
     
     output$distPlot4 <- renderPlot({
         xDem <- climateDem$Total_Amount
@@ -286,7 +325,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a histogram to display general climate fundraising data
-    # for Republicans.
+    # for Republicans. I include a log-scale transformation.
     
     output$distPlot5 <- renderPlot({
         xRep <- climateRep$Total_Amount
@@ -300,7 +339,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a histogram to display general climate fundraising data
-    # for U.S. House candidates.
+    # for U.S. House candidates. I include a log-scale transformation.
     
     output$distPlot6 <- renderPlot({
         xUSHouse <- climateUSHouse$Total_Amount
@@ -314,7 +353,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a histogram to display general climate fundraising data
-    # for U.S. Senate candidates.
+    # for U.S. Senate candidates. I include a log-scale transformation.
     
     output$distPlot7 <- renderPlot({
         xUSSenate <- climateUSSenate$Total_Amount
@@ -328,7 +367,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a histogram to display general climate fundraising data
-    # for U.S. President candidates.
+    # for U.S. President candidates. I include a log-scale transformation.
     
     output$distPlot8 <- renderPlot({
         if(input$Office == 1) {
@@ -375,7 +414,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a bar plot summarizing climate fundraising data by 
-    # office or district type.
+    # office or district type. I also change the labels on the scales. 
     
     output$distPlot9 <- renderPlot({
         ggplot(mapping = aes(x = fct_relevel(climateOffice$District_Type, 
@@ -395,7 +434,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a histogram to display general climate fundraising data
-    # for Democrats.
+    # for Democrats. I also change the labels on my scales.
     
     output$distPlot10 <- renderPlot({
         if(input$Party == 1) {
@@ -442,7 +481,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a histogram to display a summary of climate fundraising
-    # data by party.
+    # data by party. I also change the format of the labels on the scales.
     
     output$distPlot12 <- renderPlot({
         ggplot(mapping = aes(x = climateParty$Party, 
@@ -461,7 +500,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a geom_point() plot to display climate fundraising
-    # data by state.
+    # data by state. I also change the labels on the scales.
     
     output$distPlot13 <- renderPlot({
         state <- climateState %>%
@@ -477,7 +516,7 @@ server <- function(input, output, session) {
     })
     
     # Here, I generate a scatterplot to display climate fundraising data by 
-    # state.
+    # state. I manually included my own sets of labels.
     
     output$distPlot14 <- renderPlot({
         statefundraising <- climate %>%
@@ -503,16 +542,22 @@ server <- function(input, output, session) {
             rename("state" = State) %>%
             group_by(state) %>%
             summarize(StateTotal = sum(Total_Amount), .groups = "drop")
+        
+        # Here, I read in a CSV file containing state longitude and latitude
+        # values in order to generate the dataset.
     
         geography <- read_csv("data/statelatlong.csv", 
                               col_types = cols(Latitude = col_double(), 
                                                Longitude = col_double())) %>%
             rename("state" = State)
         
+        # Here, I merge the statefundraising and geography datasets.
+        
         statefundraising <- merge(statefundraising, geography, by = "state") %>%
             select(-City)
         
-        # graph data
+        # Here, I actually plot the map of climate fundraising for states.
+        
         plot_usmap(data = statefundraising, values = "StateTotal", 
                    color = "black", labels=FALSE) + 
             scale_fill_continuous( low = "white", high = "green3", 
@@ -531,6 +576,12 @@ server <- function(input, output, session) {
             as_gt()
     })
 }
+
+# Note: I have chosen to not include captions including data sources for my 
+# visualizations, because they come from multiple sources, which are all 
+# acknowledged in the About page of the project. Especially becomes the data 
+# come from both federal and state sources, there would be too many sources to 
+# include for a given visualization.
 
 shinyApp(ui, server)
 
